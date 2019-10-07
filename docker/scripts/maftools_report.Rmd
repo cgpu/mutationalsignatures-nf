@@ -1,0 +1,32 @@
+---
+title: "maftools : Summarize, Analyze and Visualize MAF Files"
+author: "Anand Mayakonda"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+    self_contained: yes
+---
+  
+
+# Installation
+
+```{r setup, include=FALSE}
+library(maftools)
+library(flexdashboard)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(maps)
+library(plotly)
+library(here)
+```
+
+```{r}
+list_of_mafs <- paste0("mafs/", list.files(inputdir))
+cohort_maf   <- maftools::merge_mafs(list.files(list_of_mafs))
+maftools::inferHeterogeneity(cohort_maf)
+```
+
