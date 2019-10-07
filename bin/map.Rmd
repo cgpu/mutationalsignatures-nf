@@ -1,0 +1,650 @@
+---
+title: "Lifebit Ancestry Analysis"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: bootstrap
+    orientation: columns
+    vertical_layout: fill
+params:
+  ancestry_csv: "/Users/admin/job_report.csv"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(maps)
+library(plotly)
+library(here)
+```
+
+Column {data-width=700}
+-----------------------------------------------------------------------
+
+### Prevalent geographical areas per admixture
+
+```{r}
+#==============
+# LOAD PACKAGES
+#==============
+
+
+#==================================================================================
+# SOURCE RESOURCE FILE WITH named vector for values = color_palette_admixtures.txt
+#==================================================================================
+source("assets/palettes/color_palette_admixtures.txt")
+
+#============================================
+# READ FROM .csv: NEW ANCESTRY OUTPUT TABLE
+#============================================
+#job_report                 <- readr::read_csv("job_report.csv")
+job_report                  <- readr::read_csv(params$ancestry_csv)
+job_report$key              <- NULL
+
+#=============================================================================
+# TRANSPOSE NEW ANCESTRY OUTPUT TABLE & CREATE admix_percent COLUMN
+#=============================================================================
+admix_df_whole               <- as.data.frame(t(as.matrix(job_report)))
+admix                        <- rownames(admix_df_whole)
+admix_df_whole               <- cbind(admix,admix_df_whole)
+colnames(admix_df_whole)     <- c("admix","admixture_proportion")
+admix_df_whole$admix_percent <- paste0(round(as.numeric(admix_df_whole$admixture_proportion)*100,2),"%")
+
+admix_df <- admix_df_whole[admix_df_whole$admixture_proportion > 0,]
+
+#===============================================================
+# READ FROM .csv: ADMIXTURE-REGION MAPPING DATAFRAME FROM .csv
+#===============================================================
+admixture_region_mapping     <- readr::read_csv("assets/resources/admixture_region_mapping.csv")
+
+#==================================================
+# CREATE VECTORS toKeep,toRemove to define regions
+#==================================================
+
+toKeep   <- intersect(admixture_region_mapping$admixture,admix_df$admix)
+toRemove <- unique(admixture_region_mapping$admixture)[!(unique(admixture_region_mapping$admixture) %in% toKeep)]
+
+#=======================================================================
+# MUTATE color_palette_admixtures to paint white the admixturew with 0%
+#=======================================================================
+for (i in toRemove) {
+ color_palette_admixtures[[i]] <- "#f8f8ff"
+}
+
+#==================================================================
+# CREATE world.map DATAFRAME with initialised NA admixture COLUMN
+#==================================================================
+
+world.map           <- ggplot2::map_data("world")
+world.map$admixture <- NA
+world.map$region    <- as.factor(world.map$region)
+
+#==================================================================
+# CREATE DERIVATIVE world.map DATAFRAMES FOR EACH OF 27 ADMIXTURES
+#==================================================================
+
+world.map_AHG                 <- world.map
+world.map_Amerindian          <- world.map
+world.map_Arctic              <- world.map
+world.map_ASI                 <- world.map
+world.map_Australomelanesian  <- world.map
+world.map_Austronesian        <- world.map
+world.map_Baltic              <- world.map
+world.map_Caucasian           <- world.map
+world.map_Centralasian        <- world.map
+world.map_EA                  <- world.map
+world.map_Eastafrican         <- world.map
+world.map_Finnic              <- world.map
+world.map_NEA                 <- world.map
+world.map_Northafrican        <- world.map
+world.map_Northeuropean       <- world.map
+world.map_Northindian         <- world.map
+world.map_Onge                <- world.map
+world.map_Paleosiberian       <- world.map
+world.map_Pygmy               <- world.map
+world.map_Sahul               <- world.map
+world.map_SEA                 <- world.map
+world.map_Siberian            <- world.map
+world.map_Southeuropean       <- world.map
+world.map_Uralic              <- world.map
+world.map_Westafrican         <- world.map
+world.map_Westasian           <- world.map
+world.map_SSA                 <- world.map
+
+#=======================================
+# CREATE vector of regions per ADMIXTURE
+#=======================================
+regions_AHG                <- admixture_region_mapping$region[admixture_region_mapping$admixture=="AHG"]
+regions_Amerindian         <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Amerindian"]
+regions_Arctic             <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Arctic"]
+regions_Australomelanesian <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Australomelanesian"]
+regions_Austronesian       <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Austronesian"]
+regions_Baltic             <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Baltic"]
+regions_Caucasian          <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Caucasian"]
+regions_Centralasian       <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Centralasian"]
+regions_EA                 <- admixture_region_mapping$region[admixture_region_mapping$admixture=="EA"]
+regions_Eastafrican        <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Eastafrican"]
+regions_Finnic             <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Finnic"]
+regions_NEA                <- admixture_region_mapping$region[admixture_region_mapping$admixture=="NEA"]
+regions_Northafrican       <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Northafrican"]
+regions_Northeuropean      <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Northeuropean"]
+regions_Northindian        <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Northindian"]
+regions_Onge               <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Onge"]
+regions_Paleosiberian      <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Paleosiberian"]
+regions_Pygmy              <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Pygmy"]
+regions_Sahul              <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Sahul"]
+regions_SEA                <- admixture_region_mapping$region[admixture_region_mapping$admixture=="SEA"]
+regions_Siberian           <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Siberian"]
+regions_Southeuropean      <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Southeuropean"]
+regions_Uralic             <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Uralic"]
+regions_Westafrican        <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Westafrican"]
+regions_Westasian          <- admixture_region_mapping$region[admixture_region_mapping$admixture=="Westasian"]
+regions_SSA                <- admixture_region_mapping$region[admixture_region_mapping$admixture=="SSA"]
+
+#======================================================================================================
+#  i) MUTATE admixture COLUMN IN DERIVATIVE world.map dataframes FROM NA to value if ADMIXTURE in toKeep
+# ii) CREATE alpha value for EACH ADMIXTURE POLYGON
+#======================================================================================================
+
+# // Multiple assignment to initialise alpha to 0
+alpha_AHG                <- alpha_Amerindian   <- alpha_Arctic <- alpha_ASI                  <- 0
+alpha_Australomelanesian <- alpha_Austronesian <- alpha_Baltic                               <- 0
+alpha_Caucasian          <- alpha_Centralasian <- alpha_EA            <- alpha_Eastafrican   <- 0
+alpha_Finnic             <- alpha_NEA          <- alpha_Northafrican  <- alpha_Northeuropean <- 0
+alpha_Northindian        <- alpha_Onge         <- alpha_Paleosiberian <- alpha_Pygmy         <- 0
+alpha_Sahul              <- alpha_SEA          <- alpha_Siberian      <- alpha_Southeuropean <- 0
+alpha_Uralic             <- alpha_Westafrican  <- alpha_Westasian     <- alpha_SSA           <- 0
+
+# 1. AHG
+if ("AHG" %in% toKeep){
+  world.map_AHG$admixture[world.map_AHG$region %in% regions_AHG] <- "AHG"
+  alpha_AHG <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="AHG"]
+}
+
+# 2. Amerindian
+if ("Amerindian" %in% toKeep){
+  world.map_Amerindian$admixture[world.map_Amerindian$region %in% regions_Amerindian] <- "Amerindian"
+  alpha_Amerindian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Amerindian"]
+}
+
+# 3. Arctic
+if ("Arctic" %in% toKeep){
+  world.map_Arctic$admixture[world.map_Arctic$region %in% regions_Arctic] <- "Arctic"
+  alpha_Arctic <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Arctic"]
+}
+
+# 4. ASI
+if ("ASI" %in% toKeep){
+  world.map_ASI$admixture[world.map_ASI$region %in% regions_ASI] <- "ASI"
+  alpha_ASI <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="ASI"]
+}
+
+# 5. Australomelanesian
+if ("Australomelanesian" %in% toKeep){
+  world.map_Australomelanesian$admixture[world.map_Australomelanesian$region  %in% regions_Australomelanesian] <- "Australomelanesian"
+  alpha_Australomelanesian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Australomelanesian"]
+}
+
+# 6. Austronesian
+if ("Austronesian" %in% toKeep){
+  world.map_Austronesian$admixture[world.map_Austronesian$region %in% regions_Austronesian] <- "Austronesian"
+  alpha_Austronesian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Austronesian"]
+}
+
+# 7. Baltic
+if ("Baltic" %in% toKeep){
+  world.map_Baltic$admixture[world.map_Baltic$region %in% regions_Baltic] <- "Baltic"
+  alpha_Baltic <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Baltic"]
+}
+
+# 8. Caucasian
+if ("Caucasian" %in% toKeep){
+  world.map_Caucasian$admixture[world.map_Caucasian$region %in% regions_Caucasian ] <- "Caucasian" 
+  alpha_Caucasian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Caucasian"]
+}  
+
+# 9. Centralasian
+if ("Centralasian" %in% toKeep){
+  world.map_Centralasian$admixture[world.map_Centralasian$region %in% regions_Centralasian ] <- "Centralasian" 
+  alpha_Centralasian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Centralasian"]
+}
+
+# 10. EA
+if ("EA" %in% toKeep){
+  world.map_EA$admixture[world.map_EA$region %in% regions_EA] <- "EA"
+  alpha_EA <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="EA"]
+}
+
+# 11. Eastafrican
+if ("Eastafrican" %in% toKeep){
+  world.map_Eastafrican$admixture[world.map_Eastafrican$region %in% regions_Eastafrican] <- "Eastafrican" 
+  alpha_Eastafrican <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Eastafrican"]
+}
+
+# 12. Finnic
+if ("Finnic" %in% toKeep){
+  world.map_Finnic$admixture[world.map_Finnic$region %in% regions_Finnic ] <- "Finnic"
+  alpha_Finnic <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Finnic"]
+}
+
+# 13. NEA
+if ("NEA" %in% toKeep){
+  world.map_NEA$admixture[world.map_NEA$region %in% regions_NEA ] <- "NEA" 
+  alpha_NEA <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="NEA"]
+}
+
+# 14. Northafrican
+if ("Northafrican" %in% toKeep){
+  world.map_Northafrican$admixture[world.map_Northafrican$region %in% regions_Northafrican ] <- "Northafrican"
+  alpha_Northafrican <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Northafrican"]
+}
+
+# 15. Northeuropean
+if ("Northeuropean" %in% toKeep){
+  world.map_Northeuropean$admixture[world.map_Northeuropean$region %in% regions_Northeuropean ] <- "Northeuropean"
+  alpha_Northeuropean <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Northeuropean"]
+}
+
+# 16. Northindian
+if ("Northindian" %in% toKeep){
+  world.map_Northindian$admixture[world.map_Northindian$region %in% regions_Northindian ] <- "Northindian"
+  alpha_Northindian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Northindian"]
+}
+
+# 17. Onge
+if ("Onge" %in% toKeep){
+  world.map_Onge$admixture[world.map_Onge$region %in% regions_Onge ] <- "Onge" 
+  alpha_Onge <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Onge"]
+}
+
+# 18. Paleosiberian
+if ("Paleosiberian" %in% toKeep){
+  world.map_Paleosiberian$admixture[world.map_Paleosiberian$admixture %in% regions_Paleosiberian ] <- "Paleosiberian"
+  alpha_Paleosiberian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Paleosiberian"]
+}
+
+# 19. Pygmy
+if ("Pygmy" %in% toKeep){
+  world.map_Pygmy$admixture[world.map_Pygmy$region %in% regions_Pygmy ] <- "Pygmy"
+  alpha_Pygmy <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Pygmy"]
+}
+
+# 20. Sahul
+if ("Sahul" %in% toKeep){
+  world.map_Sahul$admixture[world.map_Sahul$region %in% regions_Sahul ] <- "Sahul"
+  alpha_Sahul <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Sahul"]
+}
+
+# 21. SEA
+if ("SEA" %in% toKeep){
+  world.map_SEA$admixture[world.map_SEA$region %in% regions_SEA ] <- "SEA"
+  alpha_SEA <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="SEA"]
+}
+
+# 22. Siberian
+if ("Siberian" %in% toKeep){
+  world.map_Siberian$admixture[world.map_Siberian$region %in% regions_Siberian ] <- "Siberian"
+  alpha_Siberian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Siberian"]
+}
+
+# 23. Southeuropean
+if ("Southeuropean" %in% toKeep){
+  world.map_Southeuropean$admixture[world.map_Southeuropean$region %in% regions_Southeuropean ] <- "Southeuropean"
+  alpha_Southeuropean <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Southeuropean"]
+}
+
+# 24. Uralic
+if ("Uralic" %in% toKeep){
+  world.map_Uralic$admixture[world.map_Uralic$region %in% regions_Uralic ] <- "Uralic"
+  alpha_Uralic <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Uralic"]
+}
+
+# 25. Westafrican
+if ("Westafrican" %in% toKeep){
+  world.map_Westafrican$admixture[world.map_Westafrican$region %in% regions_Westafrican ] <- "Westafrican"
+  alpha_Westafrican <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Westafrican"]
+}
+
+# 26. Westasian
+if ("Westasian" %in% toKeep){
+  world.map_Westasian$admixture[world.map_Westasian$region %in% regions_Westasian ] <- "Westasian"
+  alpha_Westasian <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="Westasian"]
+}
+
+# 27 SSA
+if ("SSA" %in% toKeep){
+  world.map_SSA$admixture[world.map_SSA$region %in% regions_SSA ] <- "SSA"
+  alpha_SSA <- admix_df_whole$admixture_proportion[admix_df_whole$admix=="SSA"]
+}
+
+
+
+
+#==================================================================================
+# SOURCE RESOURCE FILE WITH named vector for labels = labels_admixtures.txt
+#==================================================================================
+source("assets/palettes/labels_admixtures.txt")
+
+
+p <- 
+  
+  ggplot() +
+  
+  # all countries
+  geom_polygon(data = world.map,
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   text= "origin from this region not found"),
+               color = "#B5B5BA",
+               fill  = "#F8F8FF",
+               size  = 0.3,
+               show.legend = FALSE) +
+  
+
+  # 1. "AHG"
+  geom_polygon(data = filter(world.map_AHG,  !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_AHG)+
+
+  
+  # 2. "Amerindian"
+  geom_polygon(data  = filter(world.map_Amerindian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Amerindian)+
+  
+  # 3. "Arctic"
+  geom_polygon(data = filter(world.map_Arctic, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Arctic)+
+  # 4. "ASI"
+  geom_polygon(data = filter(world.map_ASI, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_ASI)+
+
+  # 5. "Australomelanesian"
+  geom_polygon(data = filter(world.map_Australomelanesian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Australomelanesian)+
+
+  # 6. "Austronesian"
+  geom_polygon(data = filter(world.map_Austronesian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Austronesian)+
+
+  # 7. "Baltic"
+  geom_polygon(data = filter(world.map_Baltic, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Baltic)+
+
+  # 8. "Caucasian"
+  geom_polygon(data = filter(world.map_Caucasian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Caucasian) +
+
+  # 9. "Centralasian"
+  geom_polygon(data = filter(world.map_Centralasian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Centralasian) +
+
+  # 10. "EA"
+  geom_polygon(data = filter(world.map_EA, !is.na(admixture)),
+             aes(x = long,
+                 y = lat,
+                 group = group,
+                fill  = admixture),
+             alpha = 0.235 + 2.35 * alpha_EA) +
+
+  # 11. "Eastafrican"
+  geom_polygon(data = filter(world.map_Eastafrican, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Eastafrican)+
+
+  # 12. "Finnic"
+  geom_polygon(data = filter(world.map_Finnic, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Finnic)+
+
+  # 13. "NEA"
+  geom_polygon(data = filter(world.map_NEA, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_NEA)+
+
+  # 14. "Northafrican"
+  geom_polygon(data = filter(world.map_Northafrican, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                  fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Northeuropean)+
+
+  # 15. "Northeuropean"
+  geom_polygon(data = filter(world.map_Northeuropean, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Northeuropean)+
+
+  # 16. "Northindian"
+  geom_polygon(data = filter(world.map_Northindian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Northindian) +
+
+  # 17. "Onge"
+  geom_polygon(data = filter(world.map_Onge, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Onge)+
+
+  # 18. "Paleosiberian"
+  geom_polygon(data = filter(world.map_Paleosiberian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Paleosiberian)+
+
+  # 19. "Pygmy"
+  geom_polygon(data = filter(world.map_Pygmy, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Pygmy)+
+
+  # 20. "Sahul"
+  geom_polygon(data = filter(world.map_Sahul, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Sahul)+
+  #
+  # 21. "SEA"
+  geom_polygon(data = filter(world.map_SEA, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_SEA)+
+
+  # 22. "Siberian"
+  geom_polygon(data = filter(world.map_Siberian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Siberian)+
+
+  # 23. "Southeuropean"
+  geom_polygon(data = filter(world.map_Southeuropean, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Southeuropean)+
+
+  # 24. "Uralic"
+  geom_polygon(data = filter(world.map_Uralic, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Uralic)+
+
+
+  # 26. "Westasian" 
+  geom_polygon(data = filter(world.map_Westasian, !is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_Westasian) +
+
+  # 27. "SSA"
+  geom_polygon(data = filter(world.map_SSA,!is.na(admixture)),
+               aes(x = long,
+                   y = lat,
+                   group = group,
+                   fill  = admixture),
+               alpha = 0.235 + 2.35 * alpha_SSA) +
+  
+  scale_fill_manual(values = color_palette_admixtures,
+                    labels = labels_admixtures,
+                    na.translate = FALSE) +
+
+  # scale_color_manual(values = color_palette_regions_borders,
+  #                   na.translate = FALSE) +
+  
+  labs(
+    title = ''
+    ,subtitle = ''
+    ,x = NULL
+    ,y = NULL) +
+  
+  theme(text = element_text(family = 'Helvetica',
+                            color = '#000000')
+        ,plot.title = element_text(size = 16)
+        ,plot.subtitle = element_text(size = 6)
+        ,axis.ticks = element_blank()
+        ,axis.text = element_blank()
+        #,panel.grid = element_blank()
+        ,panel.background = element_rect(fill = '#ffffff')
+        ,plot.background = element_rect(fill = '#ffffff')
+        ,legend.position = c(.16,0.4)
+        ,legend.background = element_blank()
+        ,legend.title = element_blank()
+        ,legend.key = element_blank()
+        ,legend.text = element_text(size=10)
+        ,legend.key.size = unit(0.1, "cm")
+        ,legend.key.width = unit(0.14,"cm") 
+        #,legend.direction = "horizontal"
+  ) +
+  
+  annotate(geom = 'text'
+           ,label = ''
+           ,x = 18,y = -55
+           ,size = 3
+           ,family = 'Helvetica'
+           ,color = '#1B648A'
+           ,hjust = 'left')
+
+library(plotly)
+plotly::ggplotly(p, tooltip = "text")
+```
+
+
+Column {data-width=300}
+-----------------------------------------------------------------------
+
+### Admixture percentage
+
+```{r}
+
+library(DT)
+
+map_countries_ancestry <- read_csv("assets/resources/map_countries_ancestry.csv")
+
+colnames(admix_df_whole) <- c("admixture","proportion","percentage")
+admix_df_whole$proportion <- round(as.numeric(admix_df_whole$proportion), 2)
+color <- c('<img src="assets/images/AHG.svg" height="22"></img>',
+          '<img src="assets/images/Amerindian.svg" height="22"></img>',
+          '<img src="assets/images/Arctic.svg" height="22"></img>',
+          '<img src="assets/images/ASI.svg" height="22"></img>',
+          '<img src="assets/images/Australomelanesian.svg" height="22"></img>',
+          '<img src="assets/images/Austronesian.svg" height="22"></img>',
+          '<img src="assets/images/Baltic.svg" height="22"></img>',
+          '<img src="assets/images/Caucasian.svg" height="22"></img>',
+          '<img src="assets/images/Centralasian.svg" height="22"></img>',
+          '<img src="assets/images/EA.svg" height="22"></img>',
+          '<img src="assets/images/Eastafrican.svg" height="22"></img>',
+          '<img src="assets/images/Finnic.svg" height="22"></img>',
+          '<img src="assets/images/NEA.svg" height="22"></img>',
+          '<img src="assets/images/Northafrican.svg" height="22"></img>',
+          '<img src="assets/images/Northeuropean.svg" height="22"></img>',
+          '<img src="assets/images/Northindian.svg" height="22"></img>',
+          '<img src="assets/images/Onge.svg" height="22"></img>',
+          '<img src="assets/images/Paleosiberian.svg" height="22"></img>',
+          '<img src="assets/images/Pygmy.svg" height="22"></img>',
+          '<img src="assets/images/Sahul.svg" height="22"></img>',
+          '<img src="assets/images/SEA.svg" height="22"></img>',
+          '<img src="assets/images/Siberian.svg" height="22"></img>',
+          '<img src="assets/images/Southeuropean.svg" height="22"></img>',
+          '<img src="assets/images/SSA.svg" height="22"></img>',
+          '<img src="assets/images/Uralic.svg" height="22"></img>',
+          '<img src="assets/images/Westafrican.svg" height="22"></img>',
+          '<img src="assets/images/Westasian.svg" height="22"></img>')
+
+df <- cbind(color, admix_df_whole)
+df <- df[order(df$proportion, decreasing = TRUE), c("color","admixture", "percentage")]
+
+
+knitr::kable(df, 
+             escape = FALSE,
+             row.names = FALSE)
+
+```
+
