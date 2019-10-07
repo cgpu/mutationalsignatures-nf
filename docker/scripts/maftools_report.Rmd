@@ -25,7 +25,7 @@ library(here)
 ```
 
 ```{r}
-list_of_mafs <- paste0("mafs/", list.files(inputdir))
+list_of_mafs <- paste0("mafs/", list.files("mafs"))
 cohort_maf   <- maftools::merge_mafs(list.files(list_of_mafs))
 maftools::inferHeterogeneity(cohort_maf)
 ```
