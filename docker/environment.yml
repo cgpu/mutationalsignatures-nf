@@ -7,7 +7,6 @@ channels:
   - anaconda
 dependencies:
   - r-base=3.6.0
-  - bioconda::r-mclust=5.2
   - r-maps=3.3.0
   - bioconda::bioconductor-maftools=2.0.10
   - conda-forge::r-r.methodss3=1.7.1
@@ -88,3 +87,5 @@ dependencies:
   - r-xml2=1.2.2
   - r-yaml=2.2.0
   - fonts-anaconda=1
+  - conda-forge::r-mclust=5.4.4
+  - libopenblas=0.3.6
