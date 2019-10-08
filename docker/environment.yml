@@ -90,3 +90,4 @@ dependencies:
   - conda-forge::r-mclust=5.4.4
   - libopenblas=0.3.6
   - conda-forge::r-nmf=0.21.0
+  - bioconda::bioconductor-bsgenome.hsapiens.ucsc.hg19=1.4.0
