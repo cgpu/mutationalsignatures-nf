@@ -17,7 +17,7 @@ knitr::opts_chunk$set(error = TRUE)
 
 # Installation
 
-```{r setup, include=FALSE}
+```{r}
 library(maftools)
 library(flexdashboard)
 library(tidyverse)
