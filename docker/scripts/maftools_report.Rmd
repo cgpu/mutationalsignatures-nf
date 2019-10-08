@@ -193,6 +193,11 @@ colnames(mutsigs_nTry6$contributions) = as.character(getSampleSummary(x = cohort
 ```
 
 ```{r}
+signature_enrichment = signatureEnrichment(maf     = cohort_maf,
+                                           sig_res = mutsigs_nTry6)
+```
+
+```{r}
 head(signature_enrichment$pairwise_comparision)
 ```
 
