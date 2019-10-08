@@ -21,6 +21,7 @@ library(ggplot2)
 library(readr)
 library(maps)
 library(plotly)
+library(mclust)
 library(here)
 ```
 

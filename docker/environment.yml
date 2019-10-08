@@ -7,6 +7,7 @@ channels:
   - anaconda
 dependencies:
   - r-base=3.6.0
+  - bioconda::r-mclust=5.2
   - r-maps=3.3.0
   - bioconda::bioconductor-maftools=2.0.10
   - conda-forge::r-r.methodss3=1.7.1
