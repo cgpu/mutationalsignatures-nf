@@ -28,6 +28,7 @@ library(plotly)
 library(mclust)
 library(here)
 library(NMF)
+library(pheatmap)
 ```
 
 ```{r}
