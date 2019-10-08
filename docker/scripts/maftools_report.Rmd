@@ -9,7 +9,11 @@ output:
     number_sections: true
     self_contained: yes
 ---
-  
+
+
+```{r setup, cache = F}
+knitr::opts_chunk$set(error = TRUE)
+```
 
 # Installation
 
