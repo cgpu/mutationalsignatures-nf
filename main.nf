@@ -23,6 +23,7 @@ process run_mutsig_analysis {
   # copy the docker scripts into pwd
   mkdir scripts
   cp -r /opt/conda/envs/mutationsignatures-nf/scripts/*Rmd scripts/
+  cp -r /opt/conda/envs/mutationsignatures-nf/scripts/*.css scripts/
 
   # copy the maf files into pwd
   mkdir mafs/
