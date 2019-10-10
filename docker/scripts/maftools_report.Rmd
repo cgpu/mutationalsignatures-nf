@@ -28,6 +28,7 @@ library(mclust       , quietly = TRUE)
 library(here         , quietly = TRUE)
 library(NMF          , quietly = TRUE)
 library(pheatmap     , quietly = TRUE)
+library(GenVizR      , quietly = TRUE)
 ```
 
 # Merging individual MAF files into a cohort summary MAF object
@@ -292,7 +293,7 @@ cohort_maf.sign = extractSignatures(mat = cohort_maf.tnm
                                     ,plotBestFitRes = FALSE
                                     ,pConstant = .Machine$double.xmin)
 ```
-  
+
 ```{r, fig.width=6, fig.height=4, fig.align='center', eval = T}
 plotSignatures(cohort_maf.sign, 
                title_size = 0.8, )
@@ -768,7 +769,7 @@ plotEnrichmentResults(enrich_res = signature_enrichment,
 ```{r}
 png(filename = "TiTv.png" , width = 3300, height = 3000,res = 300)
 # Plot the frequency with a different color pallete
-TvTi(cohort_maf@data, type = "Frequency", palette = c("#77C55D", "#A461B4", "#C1524B",
+GenVizR::TvTi(cohort_maf@data, type = "Frequency", palette = c("#77C55D", "#A461B4", "#C1524B",
     "#93B5BB", "#4F433F", "#BFA753"), lab_txtAngle = 75, fileType = "MAF")
 dev.off()
 ```
