@@ -16,6 +16,7 @@ process run_mutsig_analysis {
 
   output:
   file("{MultiQC,multiqc_report.html}") into results
+  file("*") into cache
 
   script:
   """
@@ -34,6 +35,7 @@ process run_mutsig_analysis {
   R -e "rmarkdown::render('maftools_report.Rmd', output_file='maftools_report.html')"
 
   cd ..
+  mv scripts/* .
 
   mkdir MultiQC && mv scripts/maftools_report.html MultiQC/multiqc_report.html
   """
