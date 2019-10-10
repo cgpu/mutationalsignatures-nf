@@ -38,6 +38,6 @@ process run_mutsig_analysis {
   cd ..
   mv scripts/* .
 
-  mkdir MultiQC && mv scripts/maftools_report.html MultiQC/multiqc_report.html
+  mkdir MultiQC && mv maftools_report.html MultiQC/multiqc_report.html
   """
 }
