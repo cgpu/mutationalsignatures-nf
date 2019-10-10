@@ -92,3 +92,4 @@ dependencies:
   - conda-forge::r-nmf=0.21.0
   - bioconda::bioconductor-bsgenome.hsapiens.ucsc.hg19=1.4.0
   - conda-forge::r-pheatmap=1.0.12
+  - bioconda::bioconductor-genvisr=1.16.0
