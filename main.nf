@@ -6,7 +6,7 @@ Channel
     .ifEmpty { exit 1, "Path to input --maf_folder is incorrect or the folder contains no .maf files." }
     .set { maf_folder_channel}
 
-process run_mutsig_analysis {
+process run_cosmic {
   tag "$maf_folder"
   publishDir params.outdir, mode: 'copy'
   container 'lifebitai/mtsgmftls:101'
